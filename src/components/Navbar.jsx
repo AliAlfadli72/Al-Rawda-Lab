@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FaTooth, FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
@@ -40,18 +40,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-2 group relative z-[110]">
-          <div className="bg-gold p-2 rounded-lg group-hover:rotate-12 transition-transform">
-            <FaTooth className="text-slate-900 text-xl" />
-          </div>
-          <div className="flex flex-col">
-            <span className={`font-bold text-xl tracking-tight leading-none ${isScrolled || isOpen ? "text-slate-900" : "text-white"}`}>
-              مخبر الروضة
-            </span>
-            <span className="text-[10px] uppercase tracking-[2px] text-gold font-semibold">
-              Dental Laboratory
-            </span>
-          </div>
+        <Link to="/" className="flex items-center group relative z-[110]">
+          <img
+            src="/logo-sm.webp"
+            alt="مخبر الروضة - Al Rawda Dental Lab"
+            className={`h-14 w-auto object-contain transition-all duration-300 ${
+              isScrolled || isOpen ? "brightness-100" : "brightness-0 invert"
+            }`}
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -63,7 +59,7 @@ export default function Navbar() {
               className={`text-sm font-bold transition-colors hover:text-gold ${
                 location.pathname === link.path 
                   ? "text-gold" 
-                  : isScrolled ? "text-slate-700" : "text-white/90"
+                  : isScrolled ? "text-primary" : "text-white/90"
               }`}
             >
               {link.name}
@@ -77,8 +73,8 @@ export default function Navbar() {
             to="/doctors"
             className={`hidden md:block px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
               isScrolled
-                ? "bg-slate-900 text-white hover:bg-gold hover:text-slate-900 shadow-md"
-                : "bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-gold hover:text-slate-900"
+                ? "bg-primary text-white hover:bg-gold hover:text-white shadow-md"
+                : "bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-gold hover:text-white"
             }`}
           >
             بوابة الأطباء
@@ -87,7 +83,7 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden text-2xl transition-colors ${isOpen || isScrolled ? "text-slate-900" : "text-white"}`}
+            className={`md:hidden text-2xl transition-colors ${isOpen || isScrolled ? "text-primary" : "text-white"}`}
           >
             {isOpen ? <FaTimes /> : <FaBars />}
           </button>
@@ -104,7 +100,7 @@ export default function Navbar() {
             key={link.path}
             to={link.path}
             className={`text-2xl font-black transition-colors ${
-              location.pathname === link.path ? "text-gold" : "text-slate-800"
+              location.pathname === link.path ? "text-gold" : "text-primary"
             }`}
           >
             {link.name}
@@ -112,7 +108,7 @@ export default function Navbar() {
         ))}
         <Link
           to="/doctors"
-          className="mt-4 bg-slate-900 text-gold px-10 py-4 rounded-2xl font-bold text-lg"
+          className="mt-4 bg-primary text-gold px-10 py-4 rounded-2xl font-bold text-lg"
         >
           بوابة الأطباء
         </Link>

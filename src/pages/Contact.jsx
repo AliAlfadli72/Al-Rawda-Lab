@@ -1,17 +1,17 @@
-import { FaPhoneAlt, FaMobileAlt, FaMapMarkerAlt, FaWhatsapp, FaEnvelope, FaClock } from "react-icons/fa";
+import { FaPhoneAlt, FaMobileAlt, FaMapMarkerAlt, FaWhatsapp, FaFacebook, FaEnvelope, FaClock } from "react-icons/fa";
 
 export default function Contact() {
   return (
     <div className="font-sans antialiased bg-white" dir="rtl">
       
       {/* ================= HERO SECTION ================= */}
-      <section className="relative pt-32 pb-20 bg-slate-900 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+      <section className="relative pt-32 pb-20 bg-primary overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center md:text-right">
             <span className="text-gold font-bold tracking-widest text-sm uppercase mb-4 block">نحن هنا لخدمتكم</span>
             <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6">تواصل <span className="text-gold">مباشر</span></h1>
-            <p className="max-w-2xl text-slate-400 text-lg leading-relaxed">
+            <p className="max-w-2xl text-white/60 text-lg leading-relaxed">
               سواء كنت طبيباً تود بدء تعاون جديد أو لديك استفسار فني حول حالة معينة، فريق مخبر الروضة جاهز للرد الفوري.
             </p>
           </div>
@@ -25,28 +25,38 @@ export default function Contact() {
             
             {/* Sidebar: Contact Info */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="bg-slate-900 text-white p-10 rounded-[2rem] shadow-2xl relative overflow-hidden">
+              <div className="bg-primary text-white p-10 rounded-[2rem] shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-2 h-full bg-gold"></div>
                 <h3 className="text-2xl font-bold mb-8">معلومات الاتصال</h3>
                 
                 <div className="space-y-8">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-gold shrink-0">
-                      <FaMobileAlt size={20} />
+                      <FaWhatsapp size={20} />
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm mb-1">الموبايل (الطلب السريع)</p>
-                      <p className="text-lg font-bold" dir="ltr">0933 788 363</p>
+                      <p className="text-white/50 text-sm mb-1">واتسآب</p>
+                      <a href="https://wa.me/963956981594" className="text-lg font-bold hover:text-gold transition-colors" dir="ltr">00 963 95 69 81 594</a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-gold shrink-0">
-                      <FaPhoneAlt size={18} />
+                      <FaMobileAlt size={18} />
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm mb-1">الهاتف الأرضي</p>
-                      <p className="text-lg font-bold" dir="ltr">011 333 7738</p>
+                      <p className="text-white/50 text-sm mb-1">الموبايل</p>
+                      <p className="text-lg font-bold" dir="ltr">00 963 93 37 88 363</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-gold shrink-0">
+                      <FaPhoneAlt size={20} />
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-sm mb-1">الهاتف الأرضي</p>
+                      <p className="text-lg font-bold" dir="ltr">00 963 11 33 37 738</p>
                     </div>
                   </div>
 
@@ -55,8 +65,9 @@ export default function Contact() {
                       <FaMapMarkerAlt size={20} />
                     </div>
                     <div>
-                      <p className="text-slate-400 text-sm mb-1">الموقع</p>
-                      <p className="text-lg font-bold">دمشق – الروضة</p>
+                      <p className="text-white/50 text-sm mb-1">الموقع</p>
+                      <p className="text-base font-bold">دمشق – سوريا، الروضة</p>
+                      <p className="text-white/60 text-sm">شارع زهير بن أبي سلامة</p>
                     </div>
                   </div>
                 </div>
@@ -66,7 +77,7 @@ export default function Contact() {
                     <FaClock />
                     <span className="font-bold">ساعات العمل</span>
                   </div>
-                  <p className="text-slate-400 text-sm leading-relaxed">
+                  <p className="text-white/50 text-sm leading-relaxed">
                     السبت — الخميس<br />
                     9:00 صباحاً — 8:00 مساءً
                   </p>
@@ -75,7 +86,9 @@ export default function Contact() {
 
               {/* Quick WhatsApp Card */}
               <a 
-                href="https://wa.me/963933788363" 
+                href="https://wa.me/963956981594" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-between p-6 bg-green-500 hover:bg-green-600 text-white rounded-2xl transition-all shadow-lg group"
               >
                 <div className="flex items-center gap-4">
@@ -92,52 +105,52 @@ export default function Contact() {
             </div>
 
             {/* Main Form */}
-            <div className="lg:col-span-2 bg-white p-8 md:p-14 rounded-[2rem] shadow-xl border border-slate-100">
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">أرسل استفسارك</h2>
-              <p className="text-slate-500 mb-10">سنقوم بالرد عليك عبر البريد الإلكتروني أو الهاتف خلال 24 ساعة كحد أقصى.</p>
+            <div className="lg:col-span-2 bg-white p-8 md:p-14 rounded-[2rem] shadow-xl border border-primary/10">
+              <h2 className="text-3xl font-bold text-primary mb-2">أرسل استفسارك</h2>
+              <p className="text-primary/50 mb-10">سنقوم بالرد عليك عبر البريد الإلكتروني أو الهاتف خلال 24 ساعة كحد أقصى.</p>
               
               <form className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 mr-2">الاسم الكامل</label>
+                  <label className="text-sm font-bold text-primary mr-2">الاسم الكامل</label>
                   <input
                     type="text"
                     placeholder="د. محمد الأحمد"
-                    className="w-full bg-slate-50 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
+                    className="w-full bg-primary/5 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 mr-2">رقم التواصل</label>
+                  <label className="text-sm font-bold text-primary mr-2">رقم التواصل</label>
                   <input
                     type="tel"
                     placeholder="09xx xxx xxx"
-                    className="w-full bg-slate-50 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
+                    className="w-full bg-primary/5 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
                     dir="ltr"
                   />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-sm font-bold text-slate-700 mr-2">البريد الإلكتروني</label>
+                  <label className="text-sm font-bold text-primary mr-2">البريد الإلكتروني</label>
                   <input
                     type="email"
                     placeholder="doctor@example.com"
-                    className="w-full bg-slate-50 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
+                    className="w-full bg-primary/5 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all"
                     dir="ltr"
                   />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-sm font-bold text-slate-700 mr-2">نص الرسالة</label>
+                  <label className="text-sm font-bold text-primary mr-2">نص الرسالة</label>
                   <textarea
                     rows="5"
                     placeholder="كيف يمكننا مساعدتك؟"
-                    className="w-full bg-slate-50 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all resize-none"
+                    className="w-full bg-primary/5 border-transparent border-2 p-4 rounded-xl focus:bg-white focus:border-gold focus:outline-none transition-all resize-none"
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="md:col-span-2 bg-slate-900 text-gold py-5 rounded-xl font-extrabold text-lg hover:bg-slate-800 transition-all shadow-xl shadow-slate-200"
+                  className="md:col-span-2 bg-primary text-gold py-5 rounded-xl font-extrabold text-lg hover:bg-primary/90 transition-all shadow-xl shadow-primary/10"
                 >
                   إرسال الرسالة الآن
                 </button>

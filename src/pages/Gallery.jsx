@@ -1,169 +1,468 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { FaTh, FaTooth, FaStar, FaMicrochip } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { FaExpandAlt, FaFlask, FaTooth } from "react-icons/fa";
 
+/* ─── GALLERY DATA ─── */
 const galleryData = [
   {
-    id: 1,
-    category: "zircon",
+    id: 1, category: "zircon",
     title: "ابتسامة زيركون كاملة",
-    img: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800",
+    desc: "تاج زيركون عالي الشفافية مع لون مطابق للأسنان الطبيعية",
+    img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?fm=webp&q=55&w=700",
+    span: "row-span-2",
   },
   {
-    id: 2,
-    category: "veneer",
+    id: 2, category: "veneer",
     title: "فينير إيماكس تجميلي",
-    img: "https://images.unsplash.com/photo-1593059025398-0f5ce0174242?q=80&w=800",
+    desc: "قشرة خزفية رفيعة بسُمك 0.3 مم فقط لنتائج طبيعية خارقة",
+    img: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?fm=webp&q=55&w=700",
+    span: "",
   },
   {
-    id: 3,
-    category: "digital",
+    id: 3, category: "digital",
     title: "تصميم CAD/CAM دقيق",
-    img: "https://images.unsplash.com/photo-1551606713-23363300589a?q=80&w=800",
+    desc: "نظام مسح رقمي ثلاثي الأبعاد بدقة تصل إلى 20 ميكرون",
+    img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?fm=webp&q=55&w=700",
+    span: "",
   },
   {
-    id: 4,
-    category: "zircon",
+    id: 4, category: "zircon",
     title: "جسور خلفية عالية الصلابة",
-    img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=800",
+    desc: "زيركون متعدد الطبقات بقوة ضغط تتجاوز 900 ميجاباسكال",
+    img: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?fm=webp&q=55&w=700",
+    span: "",
   },
   {
-    id: 5,
-    category: "veneer",
-    title: "إعادة تأهيل ابتسامة",
-    img: "https://images.unsplash.com/photo-1460672985063-6764ac8b9c74?q=80&w=800",
+    id: 5, category: "veneer",
+    title: "إعادة تأهيل ابتسامة كاملة",
+    desc: "20 قشرة خزفية في زيارة واحدة بتقنية الشكل الرقمي Digital Smile",
+    img: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?fm=webp&q=55&w=700",
+    span: "row-span-2",
   },
   {
-    id: 6,
-    category: "digital",
+    id: 6, category: "digital",
     title: "طباعة نماذج ثلاثية الأبعاد",
-    img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800",
+    desc: "نماذج طباعة دقيقة بدقة 25 ميكرون لجميع حالات التركيب",
+    img: "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?fm=webp&q=55&w=700",
+    span: "",
+  },
+  {
+    id: 7, category: "zircon",
+    title: "ابتسامة متكاملة أمامية",
+    desc: "ستة أسنان أمامية بزيركون شفاف بدرجات لون مدروسة",
+    img: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?fm=webp&q=55&w=700",
+    span: "",
+  },
+  {
+    id: 8, category: "veneer",
+    title: "فينير بورسلان أبيض ناصع",
+    desc: "بورسلان e.max مع درجة لون BL1 للمرضى الساعين للبياض الأقصى",
+    img: "https://images.unsplash.com/photo-1606811971618-4486d14f3f99?fm=webp&q=55&w=700",
+    span: "",
   },
 ];
 
-export default function Gallery() {
-  const [filter, setFilter] = useState("all");
+const CATEGORIES = [
+  { id: "all",     label: "الكل",          icon: FaTh },
+  { id: "zircon",  label: "زيركون",        icon: FaTooth },
+  { id: "veneer",  label: "فينير",         icon: FaStar },
+  { id: "digital", label: "تقنيات رقمية", icon: FaMicrochip },
+];
 
-  const filteredImages = filter === "all" 
-    ? galleryData 
-    : galleryData.filter(item => item.category === filter);
+const STATS = [
+  { value: "5000+", label: "حالة ناجحة" },
+  { value: "120+",  label: "طبيب معتمد" },
+  { value: "100%",  label: "دقة رقمية"  },
+  { value: "24H",   label: "دعم فني"    },
+];
 
-  const categories = [
-    { id: "all", label: "الكل" },
-    { id: "zircon", label: "زيركون" },
-    { id: "veneer", label: "فينير" },
-    { id: "digital", label: "تقنيات رقمية" },
-  ];
+/* ─── CUSTOM HOOK: Intersection Observer ─── */
+function useInView(options = {}) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.15, ...options });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, inView];
+}
+
+/* ─── ANIMATED COUNTER ─── */
+function Counter({ target }) {
+  const [ref, inView] = useInView();
+  const [count, setCount] = useState("0");
+  useEffect(() => {
+    if (!inView) return;
+    const num = parseInt(target);
+    if (isNaN(num)) { setCount(target); return; }
+    let start = 0;
+    const end = num;
+    const duration = 1800;
+    const step = end / (duration / 16);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, end);
+      const suffix = target.replace(/[0-9]/g, "");
+      setCount(Math.floor(start) + suffix);
+      if (start >= end) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, target]);
+  return <span ref={ref}>{count}</span>;
+}
+
+/* ─── TILT CARD COMPONENT ─── */
+function TiltCard({ item, onClick, delay = 0, visible }) {
+  const cardRef = useRef(null);
+  const handleMouseMove = useCallback((e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const { left, top, width, height } = card.getBoundingClientRect();
+    const x = (e.clientX - left) / width  - 0.5;
+    const y = (e.clientY - top)  / height - 0.5;
+    card.style.transform = `perspective(800px) rotateY(${x * 12}deg) rotateX(${-y * 12}deg) translateZ(10px)`;
+    const glow = card.querySelector(".glow");
+    if (glow) {
+      glow.style.background = `radial-gradient(circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(160,132,60,0.35) 0%, transparent 65%)`;
+    }
+  }, []);
+  const handleMouseLeave = useCallback(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transform = "perspective(800px) rotateY(0deg) rotateX(0deg) translateZ(0)";
+    card.style.transition = "transform 0.6s cubic-bezier(0.23,1,0.32,1)";
+    const glow = card.querySelector(".glow");
+    if (glow) glow.style.background = "transparent";
+  }, []);
+  const handleMouseEnter = useCallback(() => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transition = "transform 0.1s linear";
+  }, []);
 
   return (
-    <div className="bg-white font-sans" dir="rtl">
-      
-      {/* ================= HERO SECTION ================= */}
-      <section className="relative pt-32 pb-20 bg-slate-900 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6">
-            معرض <span className="text-gold">الإتقان</span>
-          </h1>
-          <div className="w-20 h-1.5 bg-gold mx-auto mb-8 rounded-full"></div>
-          <p className="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl font-light">
-            استكشف دقة التفاصيل في أعمالنا الواقعية، حيث يلتقي العلم بالفن لتقديم أفضل النتائج.
-          </p>
-        </div>
-      </section>
+    <div
+      ref={cardRef}
+      onClick={() => onClick(item)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
+      className={`gallery-card ${item.span} ${visible ? "card-enter" : "card-hidden"}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {/* Glow layer */}
+      <div className="glow absolute inset-0 z-10 rounded-3xl pointer-events-none transition-all duration-300" />
 
-      {/* ================= FILTER SYSTEM ================= */}
-      <section className="py-12 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 flex justify-center gap-3 md:gap-6 flex-wrap">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setFilter(cat.id)}
-              className={`px-8 py-3 rounded-xl font-bold transition-all duration-300 ${
-                filter === cat.id
-                  ? "bg-gold text-slate-900 shadow-lg shadow-gold/20 translate-y-[-2px]"
-                  : "bg-white text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* Image */}
+      <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
 
-      {/* ================= MODERN IMAGE GRID ================= */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
-            {filteredImages.map((item) => (
-              <div
-                key={item.id}
-                className="relative break-inside-avoid group rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 bg-slate-100"
+      {/* Overlay */}
+      <div className="card-overlay absolute inset-0 flex flex-col justify-end p-6 rounded-3xl z-20">
+        <span className="category-badge">{item.category}</span>
+        <h3 className="text-white font-bold text-lg mb-1 translate-y-2 group-hover:translate-y-0 transition-transform duration-400">{item.title}</h3>
+        <p className="text-white/70 text-sm leading-relaxed opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500">{item.desc}</p>
+        <button className="mt-3 self-start text-gold text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center gap-2">
+          <span>مشاهدة التفاصيل</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── LIGHTBOX MODAL ─── */
+function Lightbox({ item, onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div className="lightbox-backdrop" onClick={onClose}>
+      <div className="lightbox-container" onClick={e => e.stopPropagation()}>
+        <button className="lightbox-close" onClick={onClose}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+        </button>
+        <div className="lightbox-img-wrap">
+          <img src={item.img} alt={item.title} className="lightbox-img" />
+        </div>
+        <div className="lightbox-info">
+          <span className="category-badge">{item.category}</span>
+          <h2 className="text-2xl font-bold text-white mt-3 mb-2">{item.title}</h2>
+          <p className="text-white/60 leading-relaxed text-sm">{item.desc}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── MAIN COMPONENT ─── */
+export default function Gallery() {
+  const [filter, setFilter]   = useState("all");
+  const [selected, setSelected] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [heroRef, heroInView] = useInView();
+
+  const filtered = filter === "all" ? galleryData : galleryData.filter(i => i.category === filter);
+
+  // Stagger entrance when filter changes
+  useEffect(() => {
+    setVisible(false);
+    const t = setTimeout(() => setVisible(true), 50);
+    return () => clearTimeout(t);
+  }, [filter]);
+
+  return (
+    <>
+      <style>{`
+        /* ── Base ── */
+        .gallery-page { background: #00281A; min-height: 100vh; font-family: 'Cairo', sans-serif; direction: rtl; }
+
+        /* ── Hero ── */
+        .hero-section {
+          position: relative; padding: 160px 24px 100px; text-align: center;
+          background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(160,132,60,0.18) 0%, transparent 60%), #00281A;
+          overflow: hidden;
+        }
+        .hero-grid-bg {
+          position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+          background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+          background-size: 60px 60px;
+        }
+        .hero-orb {
+          position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none;
+        }
+        .hero-orb-1 { width: 500px; height: 500px; background: rgba(160,132,60,0.12); top: -100px; right: -100px; }
+        .hero-orb-2 { width: 400px; height: 400px; background: rgba(0,80,50,0.3); bottom: -80px; left: -80px; }
+        .hero-title { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; color: #fff; line-height: 1.1; position: relative; z-index: 2; }
+        .hero-title .gold { color: #a0843c; }
+        .hero-subtitle { max-width: 560px; margin: 20px auto 0; color: rgba(255,255,255,0.5); font-size: 1.1rem; position: relative; z-index: 2; }
+        .hero-line { width: 80px; height: 3px; background: linear-gradient(90deg, #a0843c, transparent); margin: 20px auto; border-radius: 999px; position: relative; z-index: 2; }
+
+        /* ── Filter ── */
+        .filter-section {
+          padding: 40px 24px;
+          background: rgba(0,40,26,0.95);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid rgba(160,132,60,0.1);
+          position: sticky; top: 70px; z-index: 50;
+        }
+        .filter-wrap { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .filter-btn {
+          position: relative; padding: 10px 28px; border-radius: 999px; border: 1px solid rgba(160,132,60,0.2);
+          background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6);
+          font-weight: 700; font-size: 0.9rem; cursor: pointer;
+          transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+          overflow: hidden; letter-spacing: 0.02em;
+          display: flex; align-items: center; gap: 8px;
+        }
+        .filter-btn::before {
+          content: ''; position: absolute; inset: 0; border-radius: 999px;
+          background: linear-gradient(135deg, #a0843c, #7a6230);
+          opacity: 0; transition: opacity 0.3s;
+        }
+        .filter-btn:hover { color: #fff; border-color: rgba(160,132,60,0.5); transform: translateY(-2px); }
+        .filter-btn.active { color: #fff; border-color: transparent; box-shadow: 0 8px 30px rgba(160,132,60,0.35); transform: translateY(-2px); }
+        .filter-btn.active::before { opacity: 1; }
+        .filter-btn span, .filter-btn em { position: relative; z-index: 1; }
+        .filter-btn em { font-style: normal; font-size: 1rem; }
+
+        /* ── Grid ── */
+        .grid-section { padding: 60px 24px 80px; }
+        .gallery-grid {
+          max-width: 1280px; margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          grid-auto-rows: 280px;
+          gap: 20px;
+        }
+        @media (min-width: 768px) {
+          .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        .gallery-card {
+          position: relative; border-radius: 24px; overflow: hidden; cursor: pointer;
+          transition: box-shadow 0.4s;
+          will-change: transform;
+        }
+        .gallery-card:hover { box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(160,132,60,0.2); }
+        .gallery-card.row-span-2 { grid-row: span 2; }
+        .card-hidden { opacity: 0; transform: translateY(30px) scale(0.96); }
+        .card-enter  { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+        .card-overlay {
+          background: linear-gradient(to top, rgba(0,20,12,0.95) 0%, rgba(0,20,12,0.3) 60%, transparent 100%);
+          opacity: 0; transition: opacity 0.4s; border-radius: 24px;
+        }
+        .gallery-card:hover .card-overlay { opacity: 1; }
+        .category-badge {
+          display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 0.7rem;
+          font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+          background: rgba(160,132,60,0.3); border: 1px solid rgba(160,132,60,0.5);
+          color: #a0843c; backdrop-filter: blur(10px);
+        }
+
+        /* ── Stats ── */
+        .stats-section {
+          padding: 80px 24px;
+          background: linear-gradient(135deg, rgba(160,132,60,0.08) 0%, rgba(0,60,38,0.3) 50%, rgba(0,40,26,0.9) 100%);
+          border-top: 1px solid rgba(160,132,60,0.1);
+          border-bottom: 1px solid rgba(160,132,60,0.1);
+        }
+        .stats-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(2,1fr); gap: 40px; }
+        @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4,1fr); } }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 3rem; font-weight: 900; color: #a0843c; line-height: 1; margin-bottom: 8px; letter-spacing: -0.02em; }
+        .stat-label { color: rgba(255,255,255,0.45); font-size: 0.85rem; }
+
+        /* ── CTA ── */
+        .cta-section { padding: 100px 24px; text-align: center; background: #00281A; }
+        .cta-box {
+          max-width: 640px; margin: 0 auto; padding: 60px 48px; border-radius: 32px;
+          border: 1px solid rgba(160,132,60,0.15);
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(160,132,60,0.04));
+          backdrop-filter: blur(20px);
+          position: relative; overflow: hidden;
+        }
+        .cta-box::before {
+          content: ''; position: absolute; inset: 0;
+          background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(160,132,60,0.1), transparent 70%);
+        }
+        .cta-title { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; color: #fff; margin-bottom: 16px; position: relative; z-index: 1; }
+        .cta-sub { color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 36px; font-size: 0.95rem; position: relative; z-index: 1; }
+        .cta-btn {
+          position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px;
+          padding: 16px 48px; border-radius: 16px; font-weight: 700; font-size: 1rem;
+          background: linear-gradient(135deg, #a0843c, #7a6230);
+          color: #fff; text-decoration: none;
+          transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+          box-shadow: 0 8px 30px rgba(160,132,60,0.3);
+        }
+        .cta-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 20px 50px rgba(160,132,60,0.45); }
+
+        /* ── Lightbox ── */
+        .lightbox-backdrop {
+          position: fixed; inset: 0; z-index: 9999;
+          background: rgba(0,0,0,0.9); backdrop-filter: blur(16px);
+          display: flex; align-items: center; justify-content: center;
+          padding: 24px; animation: fadeIn 0.25s ease;
+        }
+        .lightbox-container {
+          background: linear-gradient(145deg, #001a10, #002818);
+          border-radius: 24px; overflow: hidden; max-width: 720px; width: 100%;
+          border: 1px solid rgba(160,132,60,0.2);
+          animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+          position: relative;
+        }
+        .lightbox-close {
+          position: absolute; top: 16px; left: 16px; z-index: 10;
+          width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(0,0,0,0.5); color: #fff; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s; backdrop-filter: blur(10px);
+        }
+        .lightbox-close:hover { background: rgba(160,132,60,0.3); border-color: #a0843c; }
+        .lightbox-img-wrap { height: 380px; overflow: hidden; }
+        .lightbox-img { width: 100%; height: 100%; object-fit: cover; }
+        .lightbox-info { padding: 28px 32px 32px; }
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.95) } to { opacity: 1; transform: translateY(0) scale(1) } }
+
+        /* ── Particle dots ── */
+        .dots-bg {
+          position: absolute; inset: 0; pointer-events: none;
+          background-image: radial-gradient(rgba(160,132,60,0.15) 1px, transparent 1px);
+          background-size: 32px 32px; z-index: 0;
+        }
+      `}</style>
+
+      <div className="gallery-page">
+
+        {/* ══ HERO ══ */}
+        <section className="hero-section" ref={heroRef}>
+          <div className="hero-grid-bg" />
+          <div className="dots-bg" />
+          <div className="hero-orb hero-orb-1" />
+          <div className="hero-orb hero-orb-2" />
+          <div className={`transition-all duration-700 ${heroInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <p className="text-gold text-sm font-bold uppercase tracking-widest mb-4 relative z-10" style={{color:"#a0843c"}}>✦ معرض الأعمال ✦</p>
+            <h1 className="hero-title">
+              معرض <span className="gold">الإتقان</span>
+            </h1>
+            <div className="hero-line" />
+            <p className="hero-subtitle">
+              استكشف دقة التفاصيل في أعمالنا الواقعية، حيث يلتقي العلم بالفن لتقديم أفضل النتائج.
+            </p>
+          </div>
+        </section>
+
+        {/* ══ FILTER ══ */}
+        <section className="filter-section">
+          <div className="filter-wrap">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setFilter(cat.id)}
+                className={`filter-btn ${filter === cat.id ? "active" : ""}`}
               >
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                
-                {/* Overlay Effect */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
-                  <div className="flex items-center gap-2 text-gold mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <FaTooth className="text-sm" />
-                    <span className="text-xs font-bold uppercase tracking-widest">{item.category}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-4 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-                    {item.title}
-                  </h3>
-                  <button className="w-fit flex items-center gap-2 text-white text-sm font-semibold border-b border-gold/50 pb-1 hover:text-gold hover:border-gold transition-all">
-                    تفاصيل الحالة <FaExpandAlt className="text-xs" />
-                  </button>
-                </div>
+                <cat.icon style={{fontSize:"0.9rem"}} />
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ GRID ══ */}
+        <section className="grid-section">
+          <div className="gallery-grid">
+            {filtered.map((item, i) => (
+              <TiltCard
+                key={item.id}
+                item={item}
+                delay={i * 80}
+                visible={visible}
+                onClick={setSelected}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ══ STATS ══ */}
+        <section className="stats-section">
+          <div className="stats-grid">
+            {STATS.map((s) => (
+              <div key={s.label} className="stat-item">
+                <div className="stat-value"><Counter target={s.value} /></div>
+                <div className="stat-label">{s.label}</div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ================= LABORATORY STATS ================= */}
-      <section className="py-20 bg-slate-900 text-white">
-        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-          <div>
-            <p className="text-gold text-4xl font-black mb-2 tracking-tighter">5000+</p>
-            <p className="text-slate-400 text-sm">حالة ناجحة</p>
+        {/* ══ CTA ══ */}
+        <section className="cta-section">
+          <div className="cta-box">
+            <p style={{color:"#a0843c"}} className="text-sm font-bold uppercase tracking-widest mb-4">ابدأ معنا اليوم</p>
+            <h2 className="cta-title">هل تبحث عن هذا المستوى من الإتقان؟</h2>
+            <p className="cta-sub">
+              انضم لمجتمع الأطباء الذين يثقون بمخبر الروضة لتحويل خططهم العلاجية إلى واقع ملموس بأعلى معايير الجودة.
+            </p>
+            <Link to="/doctors" className="cta-btn">
+              <span>ابدأ التعاون الآن</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3V10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+            </Link>
           </div>
-          <div>
-            <p className="text-gold text-4xl font-black mb-2 tracking-tighter">120+</p>
-            <p className="text-slate-400 text-sm">طبيب معتمد</p>
-          </div>
-          <div>
-            <p className="text-gold text-4xl font-black mb-2 tracking-tighter">100%</p>
-            <p className="text-slate-400 text-sm">دقة رقمية</p>
-          </div>
-          <div>
-            <p className="text-gold text-4xl font-black mb-2 tracking-tighter">24H</p>
-            <p className="text-slate-400 text-sm">دعم فني للأطباء</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-24 px-6 text-center bg-white relative">
-        <div className="max-w-3xl mx-auto border-2 border-slate-100 p-12 rounded-[3rem] hover:border-gold transition-colors duration-500">
-           <FaFlask className="text-5xl text-gold/20 mx-auto mb-6" />
-           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900">هل تبحث عن هذا المستوى من الإتقان؟</h2>
-           <p className="text-slate-500 mb-10 leading-relaxed">
-             انضم لمجتمع الأطباء الذين يثقون في مخبر الروضة لتحويل خططهم العلاجية إلى واقع ملموس.
-           </p>
-           <Link
-            to="/doctors"
-            className="inline-block bg-slate-950 text-white hover:bg-gold hover:text-slate-900 px-12 py-4 rounded-2xl font-bold text-lg transition-all"
-          >
-            ابدأ التعاون الآن
-          </Link>
-        </div>
-      </section>
+      </div>
 
-    </div>
+      {/* ══ LIGHTBOX ══ */}
+      {selected && <Lightbox item={selected} onClose={() => setSelected(null)} />}
+    </>
   );
 }

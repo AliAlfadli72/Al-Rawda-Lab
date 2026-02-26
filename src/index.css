@@ -1,8 +1,31 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Typography ── */
 body {
-  font-family: sans-serif;
+  font-family: 'Cairo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Performance hints ── */
+img {
+  content-visibility: auto;
+}
+
+/* ── Smooth scrolling ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Reduce motion for users who prefer it ── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
